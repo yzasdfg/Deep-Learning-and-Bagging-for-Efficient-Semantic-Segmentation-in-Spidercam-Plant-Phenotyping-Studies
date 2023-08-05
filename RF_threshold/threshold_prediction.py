@@ -9,7 +9,7 @@ record prediction time for threshold method
 """
 
 import sys
-sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
+sys.path.append(r'/work/yzstat/yzhan/UAV_images/')
 
 import os, joblib
 import json
@@ -26,9 +26,9 @@ from sklearn.model_selection import train_test_split
 from helper_func import *
 
 import random, time
-path = r'/work/yzstat/yinglunz/Maize_images/'
+path = r'/work/yzstat/yzhan/Maize_images/'
 
-result_path = r'/work/yzstat/yinglunz/Maize_images_RF/'
+result_path = r'/work/yzstat/yzhan/Maize_images_RF/'
 # In[2]:
 
 
