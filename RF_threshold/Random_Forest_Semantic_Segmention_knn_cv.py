@@ -26,7 +26,7 @@ import random, tensorflow as tf
 from sklearn.model_selection import RandomizedSearchCV
 
 from itertools import product
-sys.path.append(r'/home/yzstat/yinglunz/UAV_images/')
+sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
 from helper_func import *
 
 
@@ -67,7 +67,7 @@ parameters = {'n_estimators': [n_estimators], 'max_depth': [max_depth]} #, 'rand
 
 out_dir=out_dir_prefix + str(k)+'nn_points_per_image_'+str(n_points)
 
-pred_dir='/home/yzstat/yinglunz/Maize_images_RF/multiclass_prediction/'+str(k)+'nn_points_per_image_'+str(n_points)+'/RF_'+str(k)+'nn'
+pred_dir='/lustre/work/yzstat/yinglunz/Maize_images_RF/multiclass_prediction/'+str(k)+'nn_points_per_image_'+str(n_points)+'/RF_'+str(k)+'nn'
 
 if not os.path.isdir(out_dir):
     os.mkdir(out_dir)

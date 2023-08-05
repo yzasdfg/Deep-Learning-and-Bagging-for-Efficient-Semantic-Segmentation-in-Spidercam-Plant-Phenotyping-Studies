@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -135,7 +134,7 @@ for i in range(len(image_patch_list))[:]:
         #bins = np.linspace(0, 255, 64)        # gray level:64
         #compress_gray = np.digitize(img, bins)
         #gray = np.uint8(compress_gray) 
-        mean, _=list_glcm(sub_gray_img, d=[k])  # data type of the imageï¼šuint8
+        mean, _=list_glcm(sub_gray_img, d=[k])  # data type of the image£ºuint8
 
         #combine the two features
         flat_list.extend(mean)
@@ -223,7 +222,7 @@ for i in range(len(test_image_patch_list))[start_index:start_index+interval]:
         #compress_gray = np.digitize(img, bins)
         #gray = np.uint8(compress_gray) 
 
-        mean, _=list_glcm(sub_gray_img, d=[k])# data type of the imageï¼šuint8
+        mean, _=list_glcm(sub_gray_img, d=[k])# data type of the image£ºuint8
         
         #combine the two features
         flat_list.extend(mean)

@@ -21,39 +21,39 @@
 #points 4000 on gpu, 3000 3nn on batch
 
 interval=25
-for point_per_train_image in 3000
+for point_per_train_image in 2000
 do
 for k in 3
 do
 #for test_image_index in 10
 #do
 #######################################################################################
-#for test_image_index in $(seq 0 13) #13 ##test patches: 328//interval=328//25=13, [0-13] as starting point
-#do
+for test_image_index in $(seq 0 13) #13 ##test patches: 328//interval=328//25=13, [0-13] as starting point
+do
 ##########################################################################################################
 ####for comparion of deep learning algorithms. run on gpu ########
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
 
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_gpu.slurm $k $point_per_train_image $test_image_index ./RF_iou_cm_
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_gpu.slurm $k $point_per_train_image $test_image_index ./RF_iou_cm_
 
 ##############################################5 fold cross validation#############################
 #for n_estimators in 50 100 150 200
 #do
 #for max_depth in 10 20 30 40 50
 #do
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_\
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_\
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_
 
 #done
 #done
 #############################################################################################################
 ### model training and prediction
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
-#sbatch /work/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yinglunz/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
 
 
-#done
+done
 
 ###iou and prfavc
 i=750
@@ -61,7 +61,7 @@ i=750
 #sbatch ./slurm_file/prfasvc_cm_analysis.slurm $i True multiclass_prediction/${k}nn_points_per_image_${point_per_train_image}/RF_${k}nn ./iou_pkl_${k}nn_points_per_image_${point_per_train_image}
 
 
-sbatch ./slurm_file/iou_cm_analysis.slurm $i True multiclass_prediction/${k}nn_points_per_image_${point_per_train_image}/RF_${k}nn_rgb ./iou_pkl_${k}nn_points_per_image_${point_per_train_image}_rgb
+#sbatch ./slurm_file/iou_cm_analysis.slurm $i True multiclass_prediction/${k}nn_points_per_image_${point_per_train_image}/RF_${k}nn_rgb ./iou_pkl_${k}nn_points_per_image_${point_per_train_image}_rgb
 #sbatch ./slurm_file/prfasvc_cm_analysis.slurm $i True multiclass_prediction/${k}nn_points_per_image_${point_per_train_image}/RF_${k}nn_rgb ./iou_pkl_${k}nn_points_per_image_${point_per_train_image}_rgb
 
 ##Threshold
