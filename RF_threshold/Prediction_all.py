@@ -10,7 +10,7 @@ Predict all image patches and calculate prediction time
 
 
 import sys
-sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
+sys.path.append(r'/work/yzstat/yzhan/UAV_images/')
 
 import os, joblib
 import json
@@ -30,8 +30,8 @@ from tensorflow.keras.optimizers import *
 from helper_func import *
 
 import random
-path = r'/home/yzstat/yinglunz/Maize_images/'
-result_path=r'/home/yzstat/yinglunz/Maize_images_MobilenetV2_keras/'
+path = r'/home/yzstat/yzhan/Maize_images/'
+result_path=r'/home/yzstat/yzhan/Maize_images_MobilenetV2_keras/'
 
 
 # In[2]:
@@ -108,7 +108,7 @@ model.compile(optimizer='Adam',
               metrics=['accuracy'])
 
 model.load_weights(model_weight)
-#model.load_weights(r'/lustre/work/yzstat/yinglunz/UAV_images_MobilenetV2_keras/multiclass/dropout_rate_lr0.001_0.5_batch4_rs50_is42/top_weights_deeplab_MobilenetV2_keras_UAV_generator_2160.h5', by_name=True)
+#model.load_weights(r'/lustre/work/yzstat/yzhan/UAV_images_MobilenetV2_keras/multiclass/dropout_rate_lr0.001_0.5_batch4_rs50_is42/top_weights_deeplab_MobilenetV2_keras_UAV_generator_2160.h5', by_name=True)
 #print('load weights')
 
 model.summary()
