@@ -1,0 +1,262 @@
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+After hyperparameter tunning, finalized the model
+predict batches of images in parallel
+have to retrain the RF everytime because, not able to save model due to computing capacity
+"""
+
+import os
+import json
+import cv2
+from tqdm import tqdm
+import numpy as np
+import glob
+from numpy.random import seed
+from numpy.random import randint
+import joblib
+import matplotlib.pyplot as plt
+import random
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import sys
+import time
+import random, tensorflow as tf
+
+from itertools import product
+sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
+from helper_func import *
+
+
+import random
+input_path  = r'/work/yzstat/yinglunz/Maize_images/'
+
+rs=42
+k= int(sys.argv[1])
+n_points= int(sys.argv[2])
+test_image_index= int(sys.argv[3])
+interval= int(sys.argv[4])
+out_dir_prefix = sys.argv[5]
+
+
+
+print('k nearest neighbor: ', k)
+print('points per training image: ', n_points)
+print('test image index: ', test_image_index)
+print('interval: ', interval)
+print('out_dir_prefix: ', out_dir_prefix )
+
+out_dir=out_dir_prefix + str(k)+'nn_points_per_image_'+str(n_points)
+
+pred_dir='/lustre/work/yzstat/yinglunz/Maize_images_RF/multiclass_prediction/'+str(k)+'nn_points_per_image_'+str(n_points)+'/RF_'+str(k)+'nn'
+
+# create output folder
+if not os.path.isdir(out_dir):
+    os.mkdir(out_dir)
+    print('Make directory')
+
+if not os.path.isdir(os.path.dirname(pred_dir)):
+    os.mkdir(os.path.dirname(pred_dir))
+    print('Make directory')
+
+if not os.path.isdir(pred_dir):
+    os.mkdir(pred_dir)
+    print('Make directory')
+
+# In[44]:
+
+
+
+image_patch_list = sorted(glob.glob(input_path+ 'maize_image_patches/train/*.png'))
+mask_patch_list = sorted(glob.glob(input_path+ 'maize_label_patches/train/*.png'))
+
+
+image_patch_files=[os.path.basename(file) for file in image_patch_list]
+
+
+test_image_patch_list = sorted(glob.glob(input_path+ 'maize_image_patches/test/*.png'))
+test_mask_patch_list = sorted(glob.glob(input_path+ 'maize_label_patches/test/*.png'))
+
+start_index_list=np.arange(0, len(test_mask_patch_list), interval)
+print('start_index_list: ', start_index_list)
+start_index=start_index_list[test_image_index]
+print('start_index: ', start_index)
+
+
+# In[235]:
+
+
+num_classes=2
+H, W=256, 256
+#n_points=10**5
+
+# # Nearest Neighbors Random Forest
+
+# In[244]:
+
+all_points=list(product(range(k, H+2*k-k),  range(k, W+2*k-k))) #shape H+2k, 2+2k after padding 
+
+neighbor= [i for i in range(-k, k+1)]
+print(neighbor)
+coordinate=list(product(neighbor, neighbor))
+print(coordinate)
+
+
+# In[248]:
+# construct training samples. R, G, B, GLCM values at k neighbors and n_points per image
+seed(rs)
+random.seed(rs)
+
+X_train, y_train=[], []
+
+
+for i in range(len(image_patch_list))[:]:     
+    mask=cv2.copyMakeBorder(cv2.imread(mask_patch_list[i], 0),k,k,k,k,cv2.BORDER_REPLICATE)  
+    img=cv2.copyMakeBorder(cv2.imread(image_patch_list[i]),k,k,k,k,cv2.BORDER_REPLICATE)  
+    gray_img=cv2.copyMakeBorder(cv2.imread(image_patch_list[i], 0),k,k,k,k,cv2.BORDER_REPLICATE)
+    #mask=cv2.imread(mask_patch_list[i], 0)
+    #img=cv2.imread(image_patch_list[i])
+    #gray_img= cv2.imread(image_patch_list[i], 0)
+
+    points = random.sample(all_points, n_points)
+
+    if i%500==0: print(i)
+    #point = randint(k, 512-k, (n_points, 2)) # sample int from [low, high)
+    for p in points:
+        #print(p)
+
+        #RGB features
+        neighbor_img=[img[p[0]+c[0], p[1]+c[1], :] for c in coordinate]
+        flat_list = [item for sublist in neighbor_img for item in sublist]
+
+        #GLCM features
+        sub_gray_img=gray_img[p[0]+coordinate[0][0]: p[0]+coordinate[-1][0],  p[1]+coordinate[0][1]: p[1]+coordinate[-1][1]]
+        #bins = np.linspace(0, 255, 64)        # gray level:64
+        #compress_gray = np.digitize(img, bins)
+        #gray = np.uint8(compress_gray) 
+        mean, _=list_glcm(sub_gray_img, d=[k])  # data type of the image：uint8
+
+        #combine the two features
+        flat_list.extend(mean)
+        #print(len(neighbor_img))
+        #print(neighbor_img)
+        '''
+        if flat_list in X_train:
+            if y_train[X_train.index(flat_list)]==mask[point[p][0], point[p][1]]: continue
+        '''
+        X_train.append(flat_list)
+        y_train.append(mask[p[0], p[1]])
+
+
+
+
+
+print('input feature shape: ', np.array(X_train).shape)
+#joblib.dump(X_train, os.path.join(out_dir, 'RF_'+str(k)+'nn_X_train.pkl'))
+#joblib.dump(y_train, os.path.join(out_dir, 'RF_'+str(k)+'nn_y_train.pkl'))
+
+start_time = time.time()
+clf = RandomForestClassifier(n_estimators=200, max_depth=50, random_state=0)
+clf.fit(X_train, y_train)
+#print(clf)
+print("---model training time: %s seconds ---" % (time.time() - start_time))
+#joblib.dump(clf, os.path.join(out_dir, 'RF_'+str(k)+'nn_model.pkl'))
+
+# In[227]:
+
+
+#k=1, 0.7643097643097643
+#k=2, 0.7769360269360269
+#k=3  0.7710437710437711
+#k=4 0.7904040404040404
+#k=5 0.7651515151515151
+
+# In[234]:
+
+y_pred= clf.predict(X_train)
+cm_analysis(y_train, y_pred, os.path.join(out_dir, 'RF_'+str(k)+'nn_train_cm.png'), save_file=True )
+
+
+
+
+
+#X_test, y_test=[], []
+#mask=cv2.copyMakeBorder(cv2.imread(selected_mask_patch_list[test_image_index], 0),k,k,k,k,cv2.BORDER_REPLICATE)
+#img=cv2.copyMakeBorder(cv2.imread(selected_image_patch_list[test_image_index]),k,k,k,k,cv2.BORDER_REPLICATE)
+#gray_img=cv2.copyMakeBorder(cv2.imread(selected_image_patch_list[test_image_index], 0),k,k,k,k,cv2.BORDER_REPLICATE)
+
+#filename=os.path.basename(selected_image_patch_list[test_image_index])
+
+#point = random.sample(all_points, n_points)
+#point = randint(k, 512-k, (n_points, 2)) # sample int from [low, high)
+
+
+# prediction
+score=[]
+for i in range(len(test_image_patch_list))[start_index:start_index+interval]:     
+
+    X_test, y_test=[], []
+    
+    mask=cv2.copyMakeBorder(cv2.imread(test_mask_patch_list[i], 0),k,k,k,k,cv2.BORDER_REPLICATE)  
+    img=cv2.copyMakeBorder(cv2.imread(test_image_patch_list[i]),k,k,k,k,cv2.BORDER_REPLICATE)  
+    gray_img=cv2.copyMakeBorder(cv2.imread(test_image_patch_list[i], 0),k,k,k,k,cv2.BORDER_REPLICATE)
+    #mask=cv2.imread(mask_patch_list[i], 0)
+    #img=cv2.imread(image_patch_list[i])
+    #gray_img= cv2.imread(image_patch_list[i], 0)
+    filename=os.path.basename(test_image_patch_list[i])
+
+    for ap in all_points:
+        #RGB features
+        neighbor_img=[img[ap[0]+c[0], ap[1]+c[1], :] for c in coordinate]
+        flat_list = [item for sublist in neighbor_img for item in sublist]
+        #print(len(neighbor_img))
+        #print(neighbor_img)
+        
+        #if flat_list in X_test:
+            #if y_test[X_test.index(flat_list)]==mask[point[p][0], point[p][1]]: continue
+        
+
+        #GLCM features
+        sub_gray_img=gray_img[ap[0]+coordinate[0][0]: ap[0]+coordinate[-1][0],  ap[1]+coordinate[0][1]: ap[1]+coordinate[-1][1]]
+        #bins = np.linspace(0, 255, 64)        # gray level:64
+        #compress_gray = np.digitize(img, bins)
+        #gray = np.uint8(compress_gray) 
+
+        mean, _=list_glcm(sub_gray_img, d=[k])# data type of the image：uint8
+        
+        #combine the two features
+        flat_list.extend(mean)
+            
+        X_test.append(flat_list)
+        y_test.append(mask[ap[0], ap[1]])
+
+
+
+#joblib.dump(X_train, os.path.join(out_dir, 'RF_'+str(k)+'nn_X_train.pkl'))
+#joblib.dump(y_train, os.path.join(out_dir, 'RF_'+str(k)+'nn_y_train.pkl'))
+#joblib.dump(X_test, os.path.join(out_dir, 'RF_'+str(k)+'nn_X_test.pkl'))
+#joblib.dump(y_test, os.path.join(out_dir, 'RF_'+str(k)+'nn_y_test.pkl'))
+
+# In[233]:
+
+#X_train=joblib.load('RF_'+str(k)+'nn_X_train.pkl')
+#y_train=joblib.load('RF_'+str(k)+'nn_y_train.pkl')
+#X_test=joblib.load('RF_'+str(k)+'nn_X_test.pkl')
+#y_test=joblib.load('RF_'+str(k)+'nn_y_test.pkl')
+
+
+    score.append(clf.score(X_test, y_test))
+
+    # In[221]:
+
+    start_time = time.time()
+    y_pred= clf.predict(X_test)
+    y_pred_save=y_pred.reshape(H, W)
+    tf.keras.preprocessing.image.save_img(os.path.join(pred_dir, filename), y_pred_save[..., tf.newaxis], data_format=None, file_format='png', scale=False)
+
+    #joblib.dump(y_pred, os.path.join(pred_dir, 'RF_'+str(k)+'nn_y_pred_'+str(test_image_index)+'.pkl'))
+
+
+    print("--- model prediction time: %s seconds ---" % (time.time() - start_time))
+joblib.dump(score, os.path.join(out_dir, 'RF_'+str(k)+'nn_score_' +str(start_index) + '.pkl'))
