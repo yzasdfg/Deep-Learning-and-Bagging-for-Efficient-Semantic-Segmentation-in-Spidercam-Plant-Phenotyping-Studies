@@ -11,8 +11,6 @@
 
 
 
-#test_image_index=0
-
 
 #for UAV data, 2160 images: max point_per_train_image 1000 for k=1, 2 on 32gb GPU, 32000 CPU
 
@@ -28,29 +26,29 @@ do
 #for test_image_index in 10
 #do
 #######################################################################################
-for test_image_index in $(seq 0 13) #13 ##test patches: 328//interval=328//25=13, [0-13] as starting point
+for test_image_index in $(seq 0 13) #13 ##test patches: Run RF predictions on interval (can't save/load RF model because of memory restriction). 328//interval=328//25=13, [0-13] as starting point
 do
 ##########################################################################################################
 ####for comparion of deep learning algorithms. run on gpu ########
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_gpu.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
 
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_gpu.slurm $k $point_per_train_image $test_image_index ./RF_iou_cm_
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_gpu.slurm $k $point_per_train_image $test_image_index ./RF_iou_cm_
 
 ##############################################5 fold cross validation#############################
 #for n_estimators in 50 100 150 200
 #do
 #for max_depth in 10 20 30 40 50
 #do
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_\
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_\
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb_cv.slurm $k $point_per_train_image $n_estimators $max_depth ./RF_iou_cm_
 
 #done
 #done
 #############################################################################################################
 ### model training and prediction
-sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
-#sbatch /home/yzstat/yzhan/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
+#sbatch /home/yzstat/yzstat/Maize_images_RF/multiclass/slurm_file/rf_knn_rgb.slurm $k $point_per_train_image $test_image_index $interval ./RF_iou_cm_
 
 
 done
