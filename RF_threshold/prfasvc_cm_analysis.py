@@ -9,7 +9,7 @@ Calculate precision, recall, f1 score, accuracy, specificy and vegetation covera
 
 
 import sys
-sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
+sys.path.append(r'/work/yzstat/yzhan/UAV_images/')
 
 import os, joblib
 import json
@@ -28,9 +28,9 @@ from sklearn.metrics import precision_recall_fscore_support
 from helper_func import *
 
 import random
-path = r'/home/yzstat/yinglunz/Maize_images/'
+path = r'/home/yzstat/yzhan/Maize_images/'
 
-result_path = r'/home/yzstat/yinglunz/Maize_images_RF/'
+result_path = r'/home/yzstat/yzhan/Maize_images_RF/'
 # In[2]:
 
 
