@@ -24,12 +24,12 @@ import time
 import random, tensorflow as tf
 
 from itertools import product
-sys.path.append(r'/work/yzstat/yinglunz/UAV_images/')
+sys.path.append(r'/work/yzstat/yzhan/UAV_images/')
 from helper_func import *
 
 
 import random
-input_path  = r'/work/yzstat/yinglunz/Maize_images/'
+input_path  = r'/work/yzstat/yzhan/Maize_images/'
 
 rs=42
 k= int(sys.argv[1])
@@ -48,7 +48,7 @@ print('out_dir_prefix: ', out_dir_prefix )
 
 out_dir=out_dir_prefix + str(k)+'nn_points_per_image_'+str(n_points)
 
-pred_dir='/lustre/work/yzstat/yinglunz/Maize_images_RF/multiclass_prediction/'+str(k)+'nn_points_per_image_'+str(n_points)+'/RF_'+str(k)+'nn'
+pred_dir='/lustre/work/yzstat/yzhan/Maize_images_RF/multiclass_prediction/'+str(k)+'nn_points_per_image_'+str(n_points)+'/RF_'+str(k)+'nn'
 
 # create output folder
 if not os.path.isdir(out_dir):
@@ -134,7 +134,7 @@ for i in range(len(image_patch_list))[:]:
         #bins = np.linspace(0, 255, 64)        # gray level:64
         #compress_gray = np.digitize(img, bins)
         #gray = np.uint8(compress_gray) 
-        mean, _=list_glcm(sub_gray_img, d=[k])  # data type of the image£ºuint8
+        mean, _=list_glcm(sub_gray_img, d=[k])  # data type of the imageÂ£Âºuint8
 
         #combine the two features
         flat_list.extend(mean)
@@ -222,7 +222,7 @@ for i in range(len(test_image_patch_list))[start_index:start_index+interval]:
         #compress_gray = np.digitize(img, bins)
         #gray = np.uint8(compress_gray) 
 
-        mean, _=list_glcm(sub_gray_img, d=[k])# data type of the image£ºuint8
+        mean, _=list_glcm(sub_gray_img, d=[k])# data type of the imageÂ£Âºuint8
         
         #combine the two features
         flat_list.extend(mean)
