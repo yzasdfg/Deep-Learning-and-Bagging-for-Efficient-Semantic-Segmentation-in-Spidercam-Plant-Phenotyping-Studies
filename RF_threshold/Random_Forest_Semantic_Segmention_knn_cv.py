@@ -26,11 +26,28 @@ import random, tensorflow as tf
 from sklearn.model_selection import RandomizedSearchCV
 
 from itertools import product
-sys.path.append(r'/work/yzstat/yzhan/UAV_images/')
-from helper_func import *
+from skimage.feature import graycomatrix, graycoprops
 
+def list_glcm(gray, d, levels=256, arg_list=['contrast', 'dissimilarity','homogeneity', 'correlation', 'ASM']): 
+        # get a gray level co-occurrence matrix (GLCM)
+    # parameters：the matrix of gray image，distance，direction，gray level，symmetric or not，standarzation or not
+    #levels: The input image should contain integers in [0, levels-1],
+    glcm = graycomatrix(gray, d,  [0, np.pi / 4, np.pi / 2, np.pi * 3 / 4],
+                        levels=256, symmetric = True, normed = True)
+            
+    
+    mean=[]
+    glcm_range=[]
+    #获取共生矩阵的统计值.
+    for prop in arg_list:
+        
+        temp = graycoprops(glcm, prop)
+        mean.append(np.mean(temp, axis=1))
+        glcm_range.append(np.nanmax(temp, axis=1)-np.nanmin(temp, axis=1))
+    
+    mean = [item for items in mean for item in items]
+    return mean, glcm_range
 
-import random
 input_path  = r'/work/yzstat/yzhan/Maize_images/'
 
 rs=42
