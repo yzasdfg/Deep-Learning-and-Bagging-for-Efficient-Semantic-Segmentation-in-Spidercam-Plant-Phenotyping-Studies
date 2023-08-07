@@ -24,6 +24,10 @@ import time
 import random, tensorflow as tf
 
 from itertools import product
+from skimage.feature import graycomatrix, graycoprops
+from sklearn.utils.multiclass import unique_labels
+from sklearn.metrics import confusion_matrix
+import seaborn as sns, pandas as pd
 
 
 from skimage.feature import graycomatrix, graycoprops
@@ -47,6 +51,58 @@ def list_glcm(gray, d, levels=256, arg_list=['contrast', 'dissimilarity','homoge
     mean = [item for items in mean for item in items]
     return mean, glcm_range
 
+def cm_analysis(y_true, y_pred, filename = 'confusion matrix.png', save_file = False, ymap=None, figsize=(10,10)):
+
+    """
+    Generate matrix plot of confusion matrix with pretty annotations.
+    The plot image is saved to disk.
+    args: 
+      y_true:    true label of the data, with shape (nsamples,)
+      y_pred:    prediction of the data, with shape (nsamples,)
+      filename:  filename of figure file to save
+      labels:    string array, name the order of class labels in the confusion matrix.
+                 use `clf.classes_` if using scikit-learn models.
+                 with shape (nclass,).
+      ymap:      dict: any -> string, length == nclass.
+                 if not None, map the labels & ys to more understandable strings.
+                 Caution: original y_true, y_pred and labels must align.
+      figsize:   the size of the figure plotted.
+    """
+    if ymap is not None:
+        y_pred = [ymap[yi] for yi in y_pred]
+        y_true = [ymap[yi] for yi in y_true]
+        #labels = [ymap[yi] for yi in labels]
+    labels = unique_labels(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred, labels=labels)
+    cm_sum = np.sum(cm, axis=1, keepdims=True)
+    cm_perc = cm / cm_sum.astype(float) * 100
+    annot = np.empty_like(cm).astype(str)
+    nrows, ncols = cm.shape
+    for i in range(nrows):
+        for j in range(ncols):
+            c = cm[i, j]
+            p = cm_perc[i, j]
+            s = cm_sum[i]
+            if i == j:
+                
+                annot[i, j] = '%.2f%%\n%d/%d' % (p, c, s)
+            elif c == 0:
+                annot[i, j] = ''
+            else:
+                annot[i, j] = '%.2f%%\n%d/%d' % (p, c, s)
+    cm = pd.DataFrame(cm, index=labels, columns=labels)
+    cm.index.name = 'True label'
+    cm.columns.name = 'Predicted label'
+    
+    fig, ax = plt.subplots(figsize=figsize)
+  
+    ax.set_title('confusion matrix')
+    sns.heatmap(cm, annot=annot, fmt='', ax=ax, cmap = "Blues")
+    if save_file == True:   
+        plt.savefig(filename, bbox_inches ="tight", dpi=1000) 
+    #plt.show()
+
+##################################################################################################################################################################################
 input_path  = r'/work/yzstat/yzhan/Maize_images/'
 
 
