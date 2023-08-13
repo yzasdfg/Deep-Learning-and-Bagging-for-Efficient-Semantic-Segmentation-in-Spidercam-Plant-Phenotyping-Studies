@@ -5,7 +5,7 @@
 #SBATCH --partition=guest_gpu
 #SBATCH --gres=gpu 
 #SBATCH --constraint=gpu_32gb
-#SBATCH --output=./multiclass/slurm_out/test_generator-%j.out
+#SBATCH --output=./slurm_out/test_generator-%j.out
 
 module purge
 module load anaconda
