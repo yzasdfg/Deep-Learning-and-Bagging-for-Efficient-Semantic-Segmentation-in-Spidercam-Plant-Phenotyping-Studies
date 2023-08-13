@@ -6,22 +6,19 @@ RF CV for tunning hyperparameters
 Due to the computing time limitation, just run one scenario at a time instead of a squence of scenarios.
 Submit multiple jobs with different hyperparameter combinations as input for grid search
 """
-import os
-import json
-import cv2
-from tqdm import tqdm
+import os， json, cv2, glob, random
+
 import numpy as np
-import glob
+
 from numpy.random import seed
 from numpy.random import randint
-import joblib
+
 import matplotlib.pyplot as plt
-import random
+
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
-import sys
-import time
+import sys， time
 import random, tensorflow as tf
 from sklearn.model_selection import RandomizedSearchCV
 
