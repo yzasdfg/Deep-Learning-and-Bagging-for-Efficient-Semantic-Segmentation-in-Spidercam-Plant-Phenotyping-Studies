@@ -1,6 +1,5 @@
 # Maize_images
-Prediction_all.py
-Predict all image patches
+
 
 iou_cm_analysis.py
 Calculate IoU, cufusion matrix and other statistics
@@ -26,7 +25,10 @@ slurm files that envoke py files
 ## deeplabv3+
 
 ### generator_Maize_random_selection.py
-Run deeplabv3+
+Train deeplabv3+
+
+### Prediction_all.py
+Predict all image patches
 
 ### Maize_images_CNN.ipynb
 Standalone deeplabv3+ and sample size trajectory
