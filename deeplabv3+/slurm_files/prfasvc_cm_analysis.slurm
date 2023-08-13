@@ -8,7 +8,7 @@
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu 
 
-#SBATCH --output=。/multiclass/slurm_out/prfasvc_cm-%j.out
+#SBATCH --output=./slurm_out/prfasvc_cm-%j.out
 
 module purge
 module load anaconda
