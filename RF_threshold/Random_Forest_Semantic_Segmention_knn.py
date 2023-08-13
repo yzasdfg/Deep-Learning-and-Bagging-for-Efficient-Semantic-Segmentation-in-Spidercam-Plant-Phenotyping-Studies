@@ -6,10 +6,7 @@ predict batches of images in parallel
 have to retrain the RF everytime because, not able to save model due to computing capacity
 """
 
-import os
-import json
-import cv2
-from tqdm import tqdm
+import os, json, cv2
 import numpy as np
 import glob
 from numpy.random import seed
@@ -19,8 +16,7 @@ import matplotlib.pyplot as plt
 import random
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-import sys
-import time
+import sys, time
 import random, tensorflow as tf
 
 from itertools import product
@@ -253,17 +249,6 @@ cm_analysis(y_train, y_pred, os.path.join(out_dir, 'RF_'+str(k)+'nn_train_cm.png
 
 
 
-
-
-#X_test, y_test=[], []
-#mask=cv2.copyMakeBorder(cv2.imread(selected_mask_patch_list[test_image_index], 0),k,k,k,k,cv2.BORDER_REPLICATE)
-#img=cv2.copyMakeBorder(cv2.imread(selected_image_patch_list[test_image_index]),k,k,k,k,cv2.BORDER_REPLICATE)
-#gray_img=cv2.copyMakeBorder(cv2.imread(selected_image_patch_list[test_image_index], 0),k,k,k,k,cv2.BORDER_REPLICATE)
-
-#filename=os.path.basename(selected_image_patch_list[test_image_index])
-
-#point = random.sample(all_points, n_points)
-#point = randint(k, 512-k, (n_points, 2)) # sample int from [low, high)
 
 
 # prediction
