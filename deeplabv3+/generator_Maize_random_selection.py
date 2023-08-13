@@ -54,7 +54,7 @@ tf.compat.v1.keras.backend.set_session(sess)
 
 
 
-sys.path.append(r'/home/yzstat/yinglunz/UAV_images/')
+
 from helper_func import *
 #set_global_determinism()
 
@@ -73,7 +73,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStoppi
 import datetime
 import random
 #from deeplab_tf24 import *
-path = r'/home/yzstat/yinglunz/Maize_images/'
+path = r'/home/yzstat/yzhan/Maize_images/'
 
 
 # In[2]:
