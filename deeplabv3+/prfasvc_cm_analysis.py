@@ -26,9 +26,9 @@ from sklearn.metrics import precision_recall_fscore_support
 from helper_func import *
 
 import random
-path = r'/home/yzstat/yinglunz/Maize_images/'
+path = r'/home/yzstat/yzhan/Maize_images/'
 
-result_path = r'/work/yzstat/yinglunz/Maize_images_MobilenetV2_keras/'
+result_path = r'/work/yzstat/yzhan/Maize_images_MobilenetV2_keras/'
 # In[2]:
 
 
