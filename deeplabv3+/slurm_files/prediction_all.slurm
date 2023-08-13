@@ -8,7 +8,7 @@
 #SBATCH --partition=guest_gpu
 #SBATCH --gres=gpu 
 
-#SBATCH --output=./multiclass/slurm_out/prediction-%j.out
+#SBATCH --output=./slurm_out/prediction-%j.out
 module purge
 module load anaconda
 conda activate mygpu
