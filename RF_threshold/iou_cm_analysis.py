@@ -299,6 +299,6 @@ try:
 	cm_analysis(all_mask, all_pred, os.path.join(out_dir, 'unselected_cm_' + train_val_size+'.png'), save_file=True )
 	
 # max sample size, every sample is selected
-except：
+except:
 	pass
 
