@@ -23,28 +23,25 @@ from __future__ import print_function
 import tensorflow as tf
 import os, random 
 import numpy as np
-from tensorflow.keras.models import Model
-from tensorflow.keras import layers
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Lambda
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Concatenate
-from tensorflow.keras.layers import Add
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import DepthwiseConv2D
-from tensorflow.keras.layers import ZeroPadding2D
-from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras import layers
+from tensorflow.python.keras.layers import Input
+from tensorflow.python.keras.layers import Lambda
+from tensorflow.python.keras.layers import Activation
+from tensorflow.python.keras.layers import Concatenate
+from tensorflow.python.keras.layers import Add
+from tensorflow.python.keras.layers import Dropout
+from tensorflow.python.keras.layers import BatchNormalization
+from tensorflow.python.keras.layers import Conv2D
+from tensorflow.python.keras.layers import DepthwiseConv2D
+from tensorflow.python.keras.layers import ZeroPadding2D
+from tensorflow.python.keras.layers import GlobalAveragePooling2D
 from tensorflow.python.keras.utils.layer_utils import get_source_inputs
 from tensorflow.python.keras.utils.data_utils import get_file
-from tensorflow.keras import backend as K
-from keras.applications.imagenet_utils import preprocess_input
+from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.applications.imagenet_utils import preprocess_input
 
-WEIGHTS_PATH_X = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5"
-WEIGHTS_PATH_MOBILE = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_mobilenetv2_tf_dim_ordering_tf_kernels.h5"
-WEIGHTS_PATH_X_CS = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.2/deeplabv3_xception_tf_dim_ordering_tf_kernels_cityscapes.h5"
-WEIGHTS_PATH_MOBILE_CS = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.2/deeplabv3_mobilenetv2_tf_dim_ordering_tf_kernels_cityscapes.h5"
+
 
 
 def SepConv_BN(x, filters, prefix, stride=1, kernel_size=3, rate=1, depth_activation=False, epsilon=1e-3):
@@ -119,44 +116,6 @@ def _conv2d_same(x, filters, prefix, stride=1, kernel_size=3, rate=1):
                       name=prefix)(x)
 
 
-def _xception_block(inputs, depth_list, prefix, skip_connection_type, stride,
-                    rate=1, depth_activation=False, return_skip=False):
-    """ Basic building block of modified Xception network
-        Args:
-            inputs: input tensor
-            depth_list: number of filters in each SepConv layer. len(depth_list) == 3
-            prefix: prefix before name
-            skip_connection_type: one of {'conv','sum','none'}
-            stride: stride at last depthwise conv
-            rate: atrous rate for depthwise convolution
-            depth_activation: flag to use activation between depthwise & pointwise convs
-            return_skip: flag to return additional tensor after 2 SepConvs for decoder
-            """
-    residual = inputs
-    for i in range(3):
-        residual = SepConv_BN(residual,
-                              depth_list[i],
-                              prefix + '_separable_conv{}'.format(i + 1),
-                              stride=stride if i == 2 else 1,
-                              rate=rate,
-                              depth_activation=depth_activation)
-        if i == 1:
-            skip = residual
-    if skip_connection_type == 'conv':
-        shortcut = _conv2d_same(inputs, depth_list[-1], prefix + '_shortcut',
-                                kernel_size=1,
-                                stride=stride)
-        shortcut = BatchNormalization(name=prefix + '_shortcut_BN')(shortcut)
-        outputs = layers.add([residual, shortcut])
-    elif skip_connection_type == 'sum':
-        outputs = layers.add([residual, inputs])
-    elif skip_connection_type == 'none':
-        outputs = residual
-    if return_skip:
-        return outputs, skip
-    else:
-        return outputs
-
 
 def _make_divisible(v, divisor, min_value=None):
     if min_value is None:
@@ -222,19 +181,17 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
     Optionally loads weights pre-trained
     on PASCAL VOC or Cityscapes. This model is available for TensorFlow only.
     # Arguments
-        weights: one of 'pascal_voc' (pre-trained on pascal voc),
-            'cityscapes' (pre-trained on cityscape) or None (random initialization)
+        weights: load pretrained weights or None for random initialization)
         input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)
             to use as image input for the model.
         input_shape: shape of input image. format HxWxC
             PASCAL VOC model was trained on (512,512,3) images. None is allowed as shape/width
         classes: number of desired classes. PASCAL VOC has 21 classes, Cityscapes has 19 classes.
             If number of classes not aligned with the weights used, last layer is initialized randomly
-        backbone: backbone to use. one of {'xception','mobilenetv2'}
+        backbone: backbone to use. one of {'mobilenetv2'， ‘mobilenetv2s'}
         activation: optional activation to add to the top of the network.
             One of 'softmax', 'sigmoid' or None
         OS: determines input_shape/feature_extractor_output ratio. One of {8,16}.
-            Used only for xception backbone.
         alpha: controls the width of the MobileNetV2 network. This is known as the
             width multiplier in the MobileNetV2 paper.
                 - If `alpha` < 1.0, proportionally decreases the number
@@ -254,10 +211,6 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
     set_seeds(seed=seed)
     print('Set Deeplab model seed: ', seed)
     print('load pretrained weights: ', weights)
-    if not (weights in {'pascal_voc', 'cityscapes', None, 'imagenet'}):
-        raise ValueError('The `weights` argument should be either '
-                         '`None` (random initialization), `pascal_voc`, `imagenet`, or `cityscapes` '
-                         '(pre-trained on PASCAL VOC)')
 
 
 
@@ -332,10 +285,7 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
     b0 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='aspp0')(x)
     b0 = BatchNormalization(name='aspp0_BN', epsilon=1e-5)(b0)
     b0 = Activation(tf.nn.relu, name='aspp0_activation')(b0)
-
-    # there are only 2 branches in mobilenetV2. not sure why
-    #if backbone == 'xception':
-        # rate = 6 (12)
+	
     b1 = SepConv_BN(x, 256, 'aspp1',
                     rate=atrous_rates[0], depth_activation=True, epsilon=1e-5)
     # rate = 12 (24)
@@ -356,10 +306,7 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
     x = Activation(tf.nn.relu, name='concat_projection_Activation')(x)
     x = Dropout(dropout_rate)(x)
     # DeepLab v.3+ decoder adopt from deeplabv3+ paper: 4.1 Decoder Design Choices
-
-    #if backbone == 'xception':
-        # Feature projection
-        # x4 (x2) block
+    
     skip_size = tf.keras.backend.int_shape(skip1)
     x = Lambda(lambda xx: tf.compat.v1.image.resize(xx,
                                                     skip_size[1:3],
@@ -371,7 +318,6 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
         name='feature_projection0_BN', epsilon=1e-5)(dec_skip1)
     dec_skip1 = Activation(tf.nn.relu, name='feature_projection0_Activation')(dec_skip1)
     x = Concatenate(name='last_concatenate')([x, dec_skip1])
-    
     x = SepConv_BN(x, 256, 'decoder_conv0',
                    depth_activation=True, epsilon=1e-5)
     x = SepConv_BN(x, 256, 'decoder_conv1',
@@ -400,21 +346,7 @@ def Deeplabv3(weights='imagenet', input_tensor=None, input_shape=(512, 512, 3), 
         x = tf.keras.layers.Activation(activation, name='last_Activation')(x)
 
     model = Model(base_model.input, x, name='deeplabv3plus')
-
-    # load weights
-    if backbone == 'xception':
-        if weights == 'pascal_voc':
-            
-            weights_path = get_file('deeplabv3_xception_tf_dim_ordering_tf_kernels.h5',
-                                        WEIGHTS_PATH_X,
-                                        cache_subdir='models')
-
-        elif weights == 'cityscapes':
-            weights_path = get_file('deeplabv3_xception_tf_dim_ordering_tf_kernels_cityscapes.h5',
-                                        WEIGHTS_PATH_X_CS,
-                                        cache_subdir='models')
-
-        model.load_weights(weights_path, by_name=True)
+	
 
     return model
 
